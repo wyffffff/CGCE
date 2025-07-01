@@ -3,42 +3,21 @@
 ![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-brightgreen)&nbsp;
 ![PyTorch ≥ 2.0](https://img.shields.io/badge/PyTorch-%E2%89%A52.0-orange)
 
-> **CGCE** is a drop-in replacement for vanilla cross-entropy that **squeezes intra-class distances** and **stretches inter-class margins** directly in feature space.  
-> By leveraging **learnable class prototypes** and **temperature-scaled similarities**, CGCE removes the need for a linear classification head—yielding faster convergence, higher accuracy and stronger robustness *without* adding any inference-time parameters.
+## Overview  
+Contrastive Geometric Cross-Entropy (CGCE) is a loss function that unifies cross‐entropy classification with contrastive, geometric margin optimization. Instead of computing logits via a linear classifier, CGCE measures cosine similarities between normalized example embeddings and learned label embeddings, then applies a temperature‐scaled cross‐entropy over the resulting similarity matrix.
 
----
+## Abstract  
+We introduce CGCE, a loss that replaces the final linear layer’s logits with a contrastive similarity matrix between example features and learnable class prototypes. By optimizing geometric margins in embedding space and jointly learning label prototypes, CGCE yields better calibrated decision boundaries and faster convergence. We validate CGCE on CIFAR‐10, CIFAR‐100 and ImageNet, showing consistent improvements in top‐1 accuracy and robustness under label noise.
 
-## ✨ Highlights
-
-|  | Cross-Entropy | **CGCE** |
-|---|---|---|
-| Decision boundary | Implicit (linear layer) | Explicit geometric similarity |
-| Extra inference params | Yes (`W, b`) | **None** |
-| Robustness | Standard | Better on long-tail / noisy / few-shot data |
-
----
-
-## 📐 Loss Definition
-
-Given  
-
-| Symbol | Meaning |
-|--------|---------|
-| $\mathbf z\in\mathbb R^{d}$ | Sample feature (ℓ²-normalised) |
-| $\mathbf u_k\in\mathbb R^{d}$ | Prototype of class $k$ (learnable & ℓ²-normalised) |
-| $y$ | Ground-truth label |
-| $\tau$ | Temperature (default 0.1) |
-
-\[
-\boxed{\;
-\mathcal L_{\text{CGCE}}
-= -\log
-\frac{\exp\!\bigl(\langle\mathbf z,\mathbf u_{y}\rangle/\tau\bigr)}
-{\displaystyle\sum_{k=0}^{K-1}\exp\!\bigl(\langle\mathbf z,\mathbf u_{k}\rangle/\tau\bigr)}
-\;}
-\]
-
-* **Smaller $\tau$** → sharper margins; **larger $\tau$** → smoother optimisation.
+## Features  
+- **Contrastive margin optimization**  
+  Maximizes inter‐class angular separation and minimizes intra‐class variance.  
+- **Learnable label prototypes**  
+  Each class is represented by a trainable embedding, initialized via class‐mean features.  
+- **Temperature scaling**  
+  Controls softness of the similarity distribution.  
+- **Plug‐and‐play**  
+  Drop‐in replacement for standard `CrossEntropyLoss`.
 
 ### Minimal PyTorch Implementation
 
